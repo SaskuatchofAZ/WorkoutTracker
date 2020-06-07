@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 3000;
 
 const db = require("./models");
 const app = express();
+const path = require("path");
 
 app.use(logger("dev"));
 
@@ -18,18 +19,17 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workout", { use
 
 
 app.get("/exercise", (req, res) => {
-  res.sendFile(__dirname, "public", "exercise.html")
+  res.sendFile(path.join(__dirname, "public", "exercise.html"))
 });
 
 app.get("/stats", (req, res) => {
-  res.sendFile(__dirname, "public", "stats.html")
+  res.sendFile(path.join(__dirname, "public", "stats.html"))
 });
 
 app.post("/api/workouts", (req, res) => {
-  db.Excercize.create(req.body)
-    .then(({ _id }) => db.Workout.findOneAndUpdate({}, { $push: { excercises: _id } }, { new: true }))
+  db.Workout.create(req.body)
     .then(dbWorkout => {
-      console.log(dbWorkout);
+      res.send(dbWorkout);
     })
     .catch(({ message }) => {
       console.log(message);
@@ -47,7 +47,10 @@ app.get("api/workouts", (req, res) => {
 })
 
 app.put("api/workouts/:id", (req, res) => {
-  db.Workout.update()
+  db.Workout.findOneAndUpdate({ _id: req.id }, req.body)
+    .then(dbWorkout => {
+      res.end();
+    })
 })
 
 app.listen(PORT, () => {
