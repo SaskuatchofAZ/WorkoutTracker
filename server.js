@@ -16,6 +16,15 @@ app.use(express.static("public"));
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workout", { useNewUrlParser: true });
 
+
+app.get("/exercise", (req, res) => {
+  res.sendFile(__dirname, "public", "exercise.html")
+});
+
+app.get("/stats", (req, res) => {
+  res.sendFile(__dirname, "public", "stats.html")
+});
+
 app.post("/api/workouts", (req, res) => {
   db.Excercize.create(req.body)
     .then(({ _id }) => db.Workout.findOneAndUpdate({}, { $push: { excercises: _id } }, { new: true }))
@@ -40,6 +49,7 @@ app.get("api/workouts", (req, res) => {
 app.put("api/workouts/:id", (req, res) => {
   db.Workout.update()
 })
+
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}!`);
 });
