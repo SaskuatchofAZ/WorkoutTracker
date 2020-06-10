@@ -26,18 +26,19 @@ app.get("/stats", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "stats.html"))
 });
 
-app.post("/api/workouts", (req, res) => {
-  db.Workout.create(req.body)
+app.post("/api/workouts", ({ body }, res) => {
+  console.log(body);
+  db.Workout.create(body)
     .then(dbWorkout => {
-      res.send(dbWorkout);
+      res.json(dbWorkout);
     })
     .catch(({ message }) => {
       console.log(message);
     })
 })
 
-app.get("api/workouts", (req, res) => {
-  db.Workout.find({})
+app.get("/api/workouts", (req, res) => {
+  db.Workout.find()
     .then(dbWorkout => {
       res.json(dbWorkout);
     })
@@ -46,10 +47,20 @@ app.get("api/workouts", (req, res) => {
     });
 })
 
-app.put("api/workouts/:id", (req, res) => {
-  db.Workout.findOneAndUpdate({ _id: req.id }, req.body)
+app.get("/api/workouts/range", (req, res) => {
+  db.Workout.find()
     .then(dbWorkout => {
-      res.end();
+      res.json(dbWorkout);
+    })
+    .catch(err => {
+      res.json(err);
+    });
+})
+
+app.put("/api/workouts/:id", (req, res) => {
+  db.Workout.findOneAndUpdate({ _id: req.params.id }, { $push: { exercises: req.body } })
+    .then(dbWorkout => {
+      res.json(dbWorkout);
     })
 })
 
